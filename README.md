@@ -2,27 +2,31 @@
 
 ## about the game
 
-Game objective:
+Game Objective:
 
-  A single red or string of red LEDs circles around the CPX.  You are LED 0 and the only LED      not lit up.  The 'empy space' between you and the red string are LEDs that are lit up white.
-  As the LED string approaches, you must 'long jump' or 'duck' to avoid it until it has passed.
+  A single red LED circles around the CPX.  All other LEDs are yellow except for LED9, that is you.
+  LED9 (you) is not lit until you press B (jump).
+ 
+  As the red LED approaches, you must time your jump so that you avoid the red LED.
+    If you are too early, the red LED will reach the end (completes a full circle) and this will be a 'hit' (no points).
+    If you jump too late, you will know because your white LED will remain on after the CPX LED board has cleared (end of level)
+
+  After you successfully or unsuccessfully jump the red LED, you may advance to the next level by pressing A.
+  The CPX will say 'begin' and display which level you are currently on.
+
+  Level 3 and above advances in difficulty as the red LED moves quicker, thus shortening your jump-window.
+
 
 Strategy:
 
-  Time your jump or duck so that you avoid the LED string before it reaches you
-  and so that you 'land' after the LED string has passed you.
-  Later levels will have the LED string pass over/under you at close to the same speed as your    jump duration.
-  It is beneficial to use duck instead of jump when you can because your 'hang-time' from         jumping may be too long to react to the next levels LED string if it happens to be too fast.
+  Time your jump so that you jump the red LED right before it reaches you.
 
 Level difficulty:
 
-  Difficulty is increased each level by a varying number of LEDs in the string and by speed.
+  Difficulty is increased at level 3 by the red LED increasing in speed.
   
-  - number of LEDs in string ranges from 1 to 4 LEDs in a row
-  - speed of LED string moving around the CPX has 3 settings: Slow, Med, and Fast
         
 User inputs:
 
-  - left button = long jump (400ms)
-  - right button = duck (200ms)
-  - switch = reset game to level 1
+  - A button = jump
+  - B button = advance level
