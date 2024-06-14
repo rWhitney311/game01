@@ -1,70 +1,70 @@
 #include <Adafruit_CircuitPlayground.h>
 #include <AsyncDelay.h>
-float X, Y, Z, jumpLevel;
+#include <Wire.h>
+#include <SPI.h>
 
-//bool leftButtonPressed;
-//bool rightButtonPressed;
-//AsyncDelay_jump;
-//AsyncDelay_duck;
+const uint8_t spREADY[] PROGMEM = {0x6A,0xB4,0xD9,0x25,0x4A,0xE5,0xDB,0xD9,0x8D,0xB1,0xB2,0x45,0x9A,0xF6,0xD8,0x9F,0xAE,0x26,0xD7,0x30,0xED,0x72,0xDA,0x9E,0xCD,0x9C,0x6D,0xC9,0x6D,0x76,0xED,0xFA,0xE1,0x93,0x8D,0xAD,0x51,0x1F,0xC7,0xD8,0x13,0x8B,0x5A,0x3F,0x99,0x4B,0x39,0x7A,0x13,0xE2,0xE8,0x3B,0xF5,0xCA,0x77,0x7E,0xC2,0xDB,0x2B,0x8A,0xC7,0xD6,0xFA,0x7F,};
 
+int buttA = 4;
+int buttB = 5;
+
+const int ledPin = 13;
+int buttonPushCounter = 0;
+int buttonAState = 0; // current state of A button
+int buttonBState = 0; // current state of B button
+int lastButtonAState = 0;
+int lastButtonBState = 0;
 
 void setup()
 {
 Serial.begin(9600);
 CircuitPlayground.begin();
+//startMillis = millis();
+  pinMode(buttA, INPUT_PULLDOWN);
+  pinMode(buttB, INPUT_PULLDOWN);
+  pinMode(ledPin, OUTPUT);
 
-
-//attachInterrupt(digitalPinToInterrupt(slidePin), switchISR, CHANGE);// pintointerrupt(interruptPin), blink, Rising);
-//attachInterrupt(digitalPinToInterrupt(leftButtonPress), buttISR, CHANGE);
-//attachInterrupt(digitalPinToInterrupt(rightButtonPress), buttISR, CHANGE);
-//CircuitPlayground.slideSwitch();
-//gameTimer.start(3000, AsyncDelay::MILLIS);
-// include jumpTimer
-//lightString = (1,2,3,4)
-//lightSpeed = slow=, med=, fast= in ms)
-//  slow =
-//  med =
-//  fast = 
+  attachInterrupt(
+    digitalPinToInterrupt(buttA),[]()
+    {
+      Serial.println("Start");
+    },
+    RISING);
+  attachInterrupt(digitalPinToInterrupt(buttB),[]()
+    {
+      Serial.println("JUMP!");
+      delay(10);
+      CircuitPlayground.setPixelColor(9, 255, 255, 255);//white
+    },
+    RISING);
 }
 
 void loop()
 {
-  X = 0;
-  Y = 0;
-  Z = 0;
-  for (int i=0; i<10; i++) {
-    X += CircuitPlayground.motionX();
-    Y += CircuitPlayground.motionY();
-    Z += CircuitPlayground.motionZ();
-    delay(1);
-  }
-  X /= 10;
-  Y /= 10;
-  Z /= 10;
-
-  jumpLevel = sqrt(X*X + Y*Y + Z*Z);
-
-  Serial.println(jumpLevel);
-
-  if (jumpLevel > 14)
+  buttonAState = digitalRead(buttA);
+    // compare current to previous button state
+  if (buttonAState != lastButtonAState)
     {
-      CircuitPlayground.setPixelColor(9, 255, 255, 255);//white
-      Serial.begin(9600);
+    // if the state has changed, add one to counter
+    if (buttonAState == HIGH)
+    {
+      buttonPushCounter++;
+      Serial.println("Get ready to jump...");
+      Serial.print("Advance to Level: ");
+      Serial.println(buttonPushCounter);
+      CircuitPlayground.speaker.say(spREADY);
+      
     }
+    else
+    {
+      Serial.println("off");
+    }
+    // bounce delay
+    delay(10);
 
-  //if delay_jump is expired, 
-  //if (switchFlag=TRUE)
-  //{
-    //lightString = 1
-    //lightSpeed = slow
-  //}
-  //else
-
-// primary game element
-  //if digitalRead(LED8) // if LED8 is on
-  //{
-    //jumpTimer.start(400, AsyncDelay::MILLIS);
-  //}
+    if (buttonPushCounter >= 3)
+      { 
+        //fast speed
         CircuitPlayground.setPixelColor(0, 255, 0, 0); // set LEDs to red
         CircuitPlayground.setPixelColor(1, 255, 255, 0);
         CircuitPlayground.setPixelColor(2, 255, 255, 0);
@@ -90,8 +90,8 @@ void loop()
         CircuitPlayground.clearPixels();
 
         CircuitPlayground.setPixelColor(2, 255, 0, 0);
-        CircuitPlayground.setPixelColor(1, 255, 255, 0);
         CircuitPlayground.setPixelColor(0, 255, 255, 0);
+        CircuitPlayground.setPixelColor(1, 255, 255, 0);
         CircuitPlayground.setPixelColor(3, 255, 255, 0);
         CircuitPlayground.setPixelColor(4, 255, 255, 0);
         CircuitPlayground.setPixelColor(5, 255, 255, 0);
@@ -102,9 +102,9 @@ void loop()
         CircuitPlayground.clearPixels();
 
         CircuitPlayground.setPixelColor(3, 255, 0, 0);
+        CircuitPlayground.setPixelColor(0, 255, 255, 0);
         CircuitPlayground.setPixelColor(1, 255, 255, 0);
         CircuitPlayground.setPixelColor(2, 255, 255, 0);
-        CircuitPlayground.setPixelColor(0, 255, 255, 0);
         CircuitPlayground.setPixelColor(4, 255, 255, 0);
         CircuitPlayground.setPixelColor(5, 255, 255, 0);
         CircuitPlayground.setPixelColor(6, 255, 255, 0);
@@ -114,10 +114,10 @@ void loop()
         CircuitPlayground.clearPixels();
 
         CircuitPlayground.setPixelColor(4, 255, 0, 0);
+        CircuitPlayground.setPixelColor(0, 255, 255, 0);
         CircuitPlayground.setPixelColor(1, 255, 255, 0);
         CircuitPlayground.setPixelColor(2, 255, 255, 0);
         CircuitPlayground.setPixelColor(3, 255, 255, 0);
-        CircuitPlayground.setPixelColor(0, 255, 255, 0);
         CircuitPlayground.setPixelColor(5, 255, 255, 0);
         CircuitPlayground.setPixelColor(6, 255, 255, 0);
         CircuitPlayground.setPixelColor(7, 255, 255, 0);
@@ -126,11 +126,11 @@ void loop()
         CircuitPlayground.clearPixels();
 
         CircuitPlayground.setPixelColor(5, 255, 0, 0);
+        CircuitPlayground.setPixelColor(0, 255, 255, 0);
         CircuitPlayground.setPixelColor(1, 255, 255, 0);
         CircuitPlayground.setPixelColor(2, 255, 255, 0);
         CircuitPlayground.setPixelColor(3, 255, 255, 0);
         CircuitPlayground.setPixelColor(4, 255, 255, 0);
-        CircuitPlayground.setPixelColor(0, 255, 255, 0);
         CircuitPlayground.setPixelColor(6, 255, 255, 0);
         CircuitPlayground.setPixelColor(7, 255, 255, 0);
         CircuitPlayground.setPixelColor(8, 255, 255, 0);
@@ -138,30 +138,31 @@ void loop()
         CircuitPlayground.clearPixels();
 
         CircuitPlayground.setPixelColor(6, 255, 0, 0);
+        CircuitPlayground.setPixelColor(0, 255, 255, 0);
         CircuitPlayground.setPixelColor(1, 255, 255, 0);
         CircuitPlayground.setPixelColor(2, 255, 255, 0);
         CircuitPlayground.setPixelColor(3, 255, 255, 0);
         CircuitPlayground.setPixelColor(4, 255, 255, 0);
         CircuitPlayground.setPixelColor(5, 255, 255, 0);
-        CircuitPlayground.setPixelColor(0, 255, 255, 0);
         CircuitPlayground.setPixelColor(7, 255, 255, 0);
         CircuitPlayground.setPixelColor(8, 255, 255, 0);
         delay(300);
         CircuitPlayground.clearPixels();
 
         CircuitPlayground.setPixelColor(7, 255, 0, 0);
+        CircuitPlayground.setPixelColor(0, 255, 255, 0);
         CircuitPlayground.setPixelColor(1, 255, 255, 0);
-        CircuitPlayground.setPixelColor(7, 255, 255, 0);
+        CircuitPlayground.setPixelColor(2, 255, 255, 0);
         CircuitPlayground.setPixelColor(3, 255, 255, 0);
         CircuitPlayground.setPixelColor(4, 255, 255, 0);
         CircuitPlayground.setPixelColor(5, 255, 255, 0);
         CircuitPlayground.setPixelColor(6, 255, 255, 0);
-        CircuitPlayground.setPixelColor(0, 255, 255, 0);
         CircuitPlayground.setPixelColor(8, 255, 255, 0);
         delay(300);
         CircuitPlayground.clearPixels();
 
         CircuitPlayground.setPixelColor(8, 255, 0, 0);
+        CircuitPlayground.setPixelColor(0, 255, 255, 0);
         CircuitPlayground.setPixelColor(1, 255, 255, 0);
         CircuitPlayground.setPixelColor(2, 255, 255, 0);
         CircuitPlayground.setPixelColor(3, 255, 255, 0);
@@ -169,11 +170,16 @@ void loop()
         CircuitPlayground.setPixelColor(5, 255, 255, 0);
         CircuitPlayground.setPixelColor(6, 255, 255, 0);
         CircuitPlayground.setPixelColor(7, 255, 255, 0);
-        CircuitPlayground.setPixelColor(0, 255, 255, 0);
         delay(300);
         CircuitPlayground.clearPixels();
 
-        CircuitPlayground.setPixelColor(0, 255, 0, 0);
+        delay (600);
+      }
+      
+      else
+      //slow speed
+      {
+        CircuitPlayground.setPixelColor(0, 255, 0, 0); // set LEDs to red
         CircuitPlayground.setPixelColor(1, 255, 255, 0);
         CircuitPlayground.setPixelColor(2, 255, 255, 0);
         CircuitPlayground.setPixelColor(3, 255, 255, 0);
@@ -182,14 +188,104 @@ void loop()
         CircuitPlayground.setPixelColor(6, 255, 255, 0);
         CircuitPlayground.setPixelColor(7, 255, 255, 0);
         CircuitPlayground.setPixelColor(8, 255, 255, 0);
-        delay(300);
+        delay(600);
         CircuitPlayground.clearPixels();
 
+        CircuitPlayground.setPixelColor(1, 255, 0, 0);
+        CircuitPlayground.setPixelColor(0, 255, 255, 0);
+        CircuitPlayground.setPixelColor(2, 255, 255, 0);
+        CircuitPlayground.setPixelColor(3, 255, 255, 0);
+        CircuitPlayground.setPixelColor(4, 255, 255, 0);
+        CircuitPlayground.setPixelColor(5, 255, 255, 0);
+        CircuitPlayground.setPixelColor(6, 255, 255, 0);
+        CircuitPlayground.setPixelColor(7, 255, 255, 0);
+        CircuitPlayground.setPixelColor(8, 255, 255, 0);
+        delay(600);
+        CircuitPlayground.clearPixels();
 
+        CircuitPlayground.setPixelColor(2, 255, 0, 0);
+        CircuitPlayground.setPixelColor(0, 255, 255, 0);
+        CircuitPlayground.setPixelColor(1, 255, 255, 0);
+        CircuitPlayground.setPixelColor(3, 255, 255, 0);
+        CircuitPlayground.setPixelColor(4, 255, 255, 0);
+        CircuitPlayground.setPixelColor(5, 255, 255, 0);
+        CircuitPlayground.setPixelColor(6, 255, 255, 0);
+        CircuitPlayground.setPixelColor(7, 255, 255, 0);
+        CircuitPlayground.setPixelColor(8, 255, 255, 0);
+        delay(600);
+        CircuitPlayground.clearPixels();
 
-        //if jump pushed, read LED9,
-          // nested if readLED9= High, restart game timer
-      
+        CircuitPlayground.setPixelColor(3, 255, 0, 0);
+        CircuitPlayground.setPixelColor(0, 255, 255, 0);
+        CircuitPlayground.setPixelColor(1, 255, 255, 0);
+        CircuitPlayground.setPixelColor(2, 255, 255, 0);
+        CircuitPlayground.setPixelColor(4, 255, 255, 0);
+        CircuitPlayground.setPixelColor(5, 255, 255, 0);
+        CircuitPlayground.setPixelColor(6, 255, 255, 0);
+        CircuitPlayground.setPixelColor(7, 255, 255, 0);
+        CircuitPlayground.setPixelColor(8, 255, 255, 0);
+        delay(600);
+        CircuitPlayground.clearPixels();
 
+        CircuitPlayground.setPixelColor(4, 255, 0, 0);
+        CircuitPlayground.setPixelColor(0, 255, 255, 0);
+        CircuitPlayground.setPixelColor(1, 255, 255, 0);
+        CircuitPlayground.setPixelColor(2, 255, 255, 0);
+        CircuitPlayground.setPixelColor(3, 255, 255, 0);
+        CircuitPlayground.setPixelColor(5, 255, 255, 0);
+        CircuitPlayground.setPixelColor(6, 255, 255, 0);
+        CircuitPlayground.setPixelColor(7, 255, 255, 0);
+        CircuitPlayground.setPixelColor(8, 255, 255, 0);
+        delay(600);
+        CircuitPlayground.clearPixels();
 
+        CircuitPlayground.setPixelColor(5, 255, 0, 0);
+        CircuitPlayground.setPixelColor(0, 255, 255, 0);
+        CircuitPlayground.setPixelColor(1, 255, 255, 0);
+        CircuitPlayground.setPixelColor(2, 255, 255, 0);
+        CircuitPlayground.setPixelColor(3, 255, 255, 0);
+        CircuitPlayground.setPixelColor(4, 255, 255, 0);
+        CircuitPlayground.setPixelColor(6, 255, 255, 0);
+        CircuitPlayground.setPixelColor(7, 255, 255, 0);
+        CircuitPlayground.setPixelColor(8, 255, 255, 0);
+        delay(600);
+        CircuitPlayground.clearPixels();
+
+        CircuitPlayground.setPixelColor(6, 255, 0, 0);
+        CircuitPlayground.setPixelColor(0, 255, 255, 0);
+        CircuitPlayground.setPixelColor(1, 255, 255, 0);
+        CircuitPlayground.setPixelColor(2, 255, 255, 0);
+        CircuitPlayground.setPixelColor(3, 255, 255, 0);
+        CircuitPlayground.setPixelColor(4, 255, 255, 0);
+        CircuitPlayground.setPixelColor(5, 255, 255, 0);
+        CircuitPlayground.setPixelColor(7, 255, 255, 0);
+        CircuitPlayground.setPixelColor(8, 255, 255, 0);
+        delay(600);
+        CircuitPlayground.clearPixels();
+
+        CircuitPlayground.setPixelColor(7, 255, 0, 0);
+        CircuitPlayground.setPixelColor(0, 255, 255, 0);
+        CircuitPlayground.setPixelColor(1, 255, 255, 0);
+        CircuitPlayground.setPixelColor(2, 255, 255, 0);
+        CircuitPlayground.setPixelColor(3, 255, 255, 0);
+        CircuitPlayground.setPixelColor(4, 255, 255, 0);
+        CircuitPlayground.setPixelColor(5, 255, 255, 0);
+        CircuitPlayground.setPixelColor(6, 255, 255, 0);
+        CircuitPlayground.setPixelColor(8, 255, 255, 0);
+        delay(600);
+        CircuitPlayground.clearPixels();
+
+        CircuitPlayground.setPixelColor(8, 255, 0, 0);
+        CircuitPlayground.setPixelColor(0, 255, 255, 0);
+        CircuitPlayground.setPixelColor(1, 255, 255, 0);
+        CircuitPlayground.setPixelColor(2, 255, 255, 0);
+        CircuitPlayground.setPixelColor(3, 255, 255, 0);
+        CircuitPlayground.setPixelColor(4, 255, 255, 0);
+        CircuitPlayground.setPixelColor(5, 255, 255, 0);
+        CircuitPlayground.setPixelColor(6, 255, 255, 0);
+        CircuitPlayground.setPixelColor(7, 255, 255, 0);
+        delay(600);
+        CircuitPlayground.clearPixels();
+      }
+    } 
 }
